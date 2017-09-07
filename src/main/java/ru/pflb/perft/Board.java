@@ -5,10 +5,37 @@ import ru.pflb.perft.exception.NotImplementedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.pflb.perft.Piece.EMP;
+import static ru.pflb.perft.Piece.OUT;
+
 /**
  * @author <a href="mailto:8445322@gmail.com">Ivan Bonkin</a>.
  */
 public class Board {
+
+    private static final byte[] KING_OFFSETS = {+11, +10, +9, +1, -1, -9, -10, -11};
+    private static final byte[] BISHOP_OFFSETS = {+11, +9, -9, -11};
+    private static final byte[] ROOK_OFFSETS = {+10, +1, -1, -10};
+    private static final byte[] KNIGHT_OFFSETS = {+21, +19, +12, +8, -8, -12, -19, -21};
+
+    private byte kingPos[] = {0,0};
+    private byte rookPos[][] = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    private byte bishopPos[][] = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    private byte knightPos[][] = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    private byte queenPos[][] = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    private final Color sideToMove;
 
     private Piece[] mailbox120 = {
             OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, // 0-9
@@ -27,11 +54,23 @@ public class Board {
 
     public Board(String fen) {
         // TODO
+        throw new NotImplementedException();
     }
 
     public List<Move> genKingMoves() {
-        // TODO
-        throw new NotImplementedException();
+        List<Move> moves = new ArrayList<>();
+        for (byte offset : KING_OFFSETS) {
+            byte from = kingPos[sideToMove.code];
+            byte to = (byte) (from + offset);
+            Piece toPiece = mailbox120[to];
+            if ((EMP).equals(toPiece)) {
+                moves.add(new Move(from, to, Piece.king(sideToMove)))
+            } else if ((OUT).equals(toPiece)) {
+                continue;
+            } else {
+                // взятие
+            }
+        }
     }
 
     public List<Move> genBishopMoves() {
