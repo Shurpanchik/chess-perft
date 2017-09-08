@@ -30,5 +30,8 @@ public enum Piece {
         this.code = code;
     }
 
+    public Color getColor() {
+        return code <= 6 ? WHITE : BLACK;
+    }
 
 }

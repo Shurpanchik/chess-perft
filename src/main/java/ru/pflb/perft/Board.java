@@ -165,13 +165,51 @@ public class Board {
     }
 
     public List<Move> genBishopMoves() {
-        // TODO
-        throw new NotImplementedException();
+        List<Move> moves = new ArrayList<>();
+
+        // проходим по всем слонам цвета ходящей стороны
+        for (int i = 0; i < bishopPos[sideToMove.code].length && bishopPos[sideToMove.code][i] != 0; i++) {
+            byte from = bishopPos[sideToMove.code][i];
+            // для каждого слона проходим по всем направлениям
+            for (byte offset : BISHOP_OFFSETS) {
+
+                byte to = (byte) (from + offset);
+                for (; mailbox120[to] == EMP ; to += offset) {
+                    // генерируем все ходы по пустым клеткам
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_BISHOP : B_BISHOP));
+                }
+                // генерируем взятие, если наткнулись на чужую фигуру
+                if (mailbox120[to].getColor() == getOpponentColor()) {
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_BISHOP : B_BISHOP, mailbox120[to]));
+                }
+            }
+        }
+
+        return moves;
     }
 
     public List<Move> genRookMoves() {
-        // TODO
-        throw new NotImplementedException();
+        List<Move> moves = new ArrayList<>();
+
+        // проходим по всем слонам цвета ходящей стороны
+        for (int i = 0; i < rookPos[sideToMove.code].length && rookPos[sideToMove.code][i] != 0; i++) {
+            byte from = rookPos[sideToMove.code][i];
+            // для каждого слона проходим по всем направлениям
+            for (byte offset : ROOK_OFFSETS) {
+
+                byte to = (byte) (from + offset);
+                for (; mailbox120[to] == EMP ; to += offset) {
+                    // генерируем все ходы по пустым клеткам
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_BISHOP : B_BISHOP));
+                }
+                // генерируем взятие, если наткнулись на чужую фигуру
+                if (mailbox120[to].getColor() == getOpponentColor()) {
+                    moves.add(new Move(new Square(from), new Square(to), W_BISHOP, mailbox120[to]));
+                }
+            }
+        }
+
+        return moves;
     }
 
     public List<Move> genQueenMoves() {
