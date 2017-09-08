@@ -194,7 +194,10 @@ public class Board {
         return moves;
     }
 
-    public boolean isCheck(Color sideToMove) {
+    /**
+     * @param kingColor цвет короля, которому детектируется шах
+     */
+    public boolean isCheck(Color kingColor) {
         // TODO - реализовать курсанту
         throw new NotImplementedException();
     }
@@ -263,4 +266,7 @@ public class Board {
     }
 
 
+    public Color getOpponentColor() {
+        return sideToMove == WHITE ? BLACK : WHITE;
+    }
 }
