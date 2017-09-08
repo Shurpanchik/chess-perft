@@ -9,23 +9,6 @@ import java.util.Optional;
  */
 public class Move {
 
-    private final Square from, to;
-
-    private final Piece piece;
-
-    private final Optional<Piece> capture;
-
-    public Move(Square from, Square to, Piece piece) {
-        this(from, to, piece, null);
-    }
-
-    public Move(Square from, Square to, Piece piece, Piece capture) {
-        this.from = from;
-        this.to = to;
-        this.piece = piece;
-        this.capture = Optional.ofNullable(capture);
-    }
-
     public final Square from, to;
 
     public final Piece piece;
