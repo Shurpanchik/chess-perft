@@ -30,4 +30,5 @@ public enum Piece {
         this.code = code;
     }
 
+
 }
