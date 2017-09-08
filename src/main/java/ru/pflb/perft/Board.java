@@ -200,11 +200,11 @@ public class Board {
                 byte to = (byte) (from + offset);
                 for (; mailbox120[to] == EMP ; to += offset) {
                     // генерируем все ходы по пустым клеткам
-                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_BISHOP : B_BISHOP));
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_ROOK : B_ROOK));
                 }
                 // генерируем взятие, если наткнулись на чужую фигуру
                 if (mailbox120[to].getColor() == getOpponentColor()) {
-                    moves.add(new Move(new Square(from), new Square(to), W_BISHOP, mailbox120[to]));
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_ROOK : B_ROOK, mailbox120[to]));
                 }
             }
         }
