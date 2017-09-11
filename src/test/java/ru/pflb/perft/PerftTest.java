@@ -14,7 +14,7 @@ public class PerftTest {
     public void shortPerftTest() {
         long millis = System.currentTimeMillis();
         Board board = new Board("4kb2/8/8/8/8/8/8/4K2R w - -");
-        int movesNb = Perft.calculate(board, 2);
+        int movesNb = Perft.calculate(board, 7);
         System.out.println(System.currentTimeMillis() - millis);
 
         assertThat(movesNb).isEqualTo(104744354);

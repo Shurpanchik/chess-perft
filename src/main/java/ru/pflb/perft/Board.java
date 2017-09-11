@@ -274,24 +274,28 @@ public class Board {
      * Запоминаем позицию короля, делаем все возможные ходы за противоположную сторону
      * Если есть ход на позицию короля, то это шах
      */
+    /**
+     * @param kingColor цвет короля, которому детектируется шах
+     */
     public boolean isCheck(Color kingColor) {
         // TODO - реализовать курсанту
 
         byte pos = kingPos[kingColor.code];
-        // чтобы узнать есть ли взятие короля вторым ходым, то пропустим ход соперника
-        sideToMove = kingColor;
+
+        Color currentCollor =  sideToMove;// цвет, того, кто сейчас ходит
+        sideToMove = kingColor == WHITE ? BLACK : WHITE;// говорим, что ходит соперник
         List<Move>list = genAllMoves();
 
         for (Move move:list) {
             if(move.to.getValue() == kingPos[kingColor.code]  ){
                 System.out.println(move.piece +" from "+move.from.getValue()+" to "+ move.to.getValue());
-                // вернем текущий ход спернику
-                sideToMove = getOpponentColor();
+                // вернем цвет, того, кто сейчас ходит
+                sideToMove = currentCollor;
                 return true;
             }
         }
-        // вернем текущий ход спернику
-        sideToMove = getOpponentColor();
+        // вернем цвет, того, кто сейчас ходит
+        sideToMove = currentCollor;
         return false;
     }
 
