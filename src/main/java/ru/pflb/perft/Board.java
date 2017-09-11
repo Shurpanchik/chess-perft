@@ -1,7 +1,5 @@
 package ru.pflb.perft;
 
-import ru.pflb.perft.exception.NotImplementedException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +20,7 @@ public class Board {
     private static final byte[] BISHOP_OFFSETS = {+11, +9, -9, -11};
     private static final byte[] ROOK_OFFSETS = {+10, +1, -1, -10};
     private static final byte[] KNIGHT_OFFSETS = {+21, +19, +12, +8, -8, -12, -19, -21};
+    private static final byte[] QUEEN_OFFSETS ={+11, +10, +9, +1, -1, -9, -10, -11};
 
     private byte kingPos[] = {0,0};
     private byte rookPos[][] = {
@@ -213,13 +212,50 @@ public class Board {
     }
 
     public List<Move> genQueenMoves() {
-        // TODO
-        throw new NotImplementedException();
+        List<Move> moves = new ArrayList<>();
+
+        // проходим по всем ферзям цвета ходящей стороны
+        for (int i = 0; i < queenPos[sideToMove.code].length && queenPos[sideToMove.code][i] != 0; i++) {
+            byte from = queenPos[sideToMove.code][i];
+            // для каждого ферзя проходим по всем направлениям
+            for (byte offset : QUEEN_OFFSETS) {
+
+                byte to = (byte) (from + offset);
+                for (; mailbox120[to] == EMP ; to += offset) {
+                    // генерируем все ходы по пустым клеткам
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_QUEEN : B_QUEEN));
+                }
+                // генерируем взятие, если наткнулись на чужую фигуру
+                if (mailbox120[to].getColor() == getOpponentColor()) {
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_QUEEN : B_QUEEN, mailbox120[to]));
+                }
+            }
+        }
+
+        return moves;
     }
 
     public List<Move> genKnightMoves() {
-        // TODO
-        throw new NotImplementedException();
+
+        List<Move> moves = new ArrayList<>();
+        // проходим по всем коням цвета ходящей стороны
+        for (int i = 0; i < knightPos[sideToMove.code].length && knightPos[sideToMove.code][i] != 0; i++) {
+            byte from = knightPos[sideToMove.code][i];
+            // для каждого коня проходим по всем направлениям
+            for (byte offset : KNIGHT_OFFSETS) {
+
+                byte to = (byte) (from + offset);
+                for (; mailbox120[to] == EMP ; to += offset) {
+                    // генерируем все ходы по пустым клеткам
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_KNIGHT : B_KNIGHT));
+                }
+                // генерируем взятие, если наткнулись на чужую фигуру
+                if (mailbox120[to].getColor() == getOpponentColor()) {
+                    moves.add(new Move(new Square(from), new Square(to), sideToMove == WHITE ? W_KNIGHT : B_KNIGHT, mailbox120[to]));
+                }
+            }
+        }
+        return moves;
     }
 
     public List<Move> genAllMoves() {
@@ -234,10 +270,24 @@ public class Board {
 
     /**
      * @param kingColor цвет короля, которому детектируется шах
+     * Алгоритм:
+     * Запоминаем позицию короля, делаем все возможные ходы за противоположную сторону
+     * Если есть ход на позицию короля, то это шах
      */
     public boolean isCheck(Color kingColor) {
         // TODO - реализовать курсанту
-        throw new NotImplementedException();
+
+        byte pos = kingPos[kingColor.code];
+
+        List<Move>list = genAllMoves();
+
+        for (Move move:list) {
+            if(move.to.getValue() == kingPos[kingColor.code] && move.piece.getColor()!=kingColor ){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void makeMove(Move move) {
@@ -252,30 +302,90 @@ public class Board {
                 kingPos[BLACK.code] = val(move.to);
                 break;
             case W_BISHOP:
-                for (int i = 0; i < bishopPos[WHITE.code].length; i++) {
-                    if (bishopPos[WHITE.code][i] == val(move.from)) {
-                        bishopPos[WHITE.code][i] = val(move.to);
-                        break;
-                    }
-                }
+                makeQuietMove(move, bishopPos,WHITE);
                 break;
-            // TODO - для остальных фигур сгенерировать тихие ходы
+            case B_BISHOP:
+                makeQuietMove(move, bishopPos,BLACK);
+                break;
+            case W_ROOK:
+                makeQuietMove(move,rookPos,WHITE);
+                break;
+            case B_ROOK:
+                makeQuietMove(move,rookPos,BLACK);
+                break;
+            case W_QUEEN:
+                makeQuietMove(move,queenPos,WHITE);
+                break;
+            case B_QUEEN:
+                makeQuietMove(move,queenPos,BLACK);
+                break;
+            case W_KNIGHT:
+                makeQuietMove(move,knightPos,WHITE);
+                break;
+            case B_KNIGHT:
+                makeQuietMove(move,knightPos,BLACK);
+                break;
         }
 
         if (move.isCapture()) {
             switch (move.capture.get()) {
                 case W_BISHOP:
-                    for (int i = 0; i < bishopPos[WHITE.code].length; i++) {
-                        if (bishopPos[WHITE.code][i] == val(move.to)) {
-                            // сдвигаем все остальные значения на единицу, заполняя выбывшую фигуру, пока не встретим 0
-                            // таким образом массив будет всегда содержать нулевые значения в конце
-                            for (int j = i + 1; bishopPos[WHITE.code][j] != 0 && j < bishopPos[WHITE.code].length; j++) {
-                                bishopPos[WHITE.code][j - 1] = bishopPos[WHITE.code][j];
-                            }
-                            break;
-                        }
-                    }
-                // TODO - для остальных фигур сгенерировать взятия
+                    makeTakeMove(move, bishopPos,WHITE);
+                    break;
+                case B_BISHOP:
+                    makeTakeMove(move, bishopPos,BLACK);
+                    break;
+                case W_ROOK:
+                    makeTakeMove(move,rookPos,WHITE);
+                    break;
+                case B_ROOK:
+                    makeTakeMove(move,rookPos,BLACK);
+                    break;
+                case W_QUEEN:
+                    makeTakeMove(move,queenPos,WHITE);
+                    break;
+                case B_QUEEN:
+                    makeTakeMove(move,queenPos,BLACK);
+                    break;
+                case W_KNIGHT:
+                    makeTakeMove(move,knightPos,WHITE);
+                    break;
+                case B_KNIGHT:
+                    makeTakeMove(move,knightPos,BLACK);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param move
+     * @param pos - массив
+     * @param color - цвет фигуры
+     * метод деланья тихого хода
+     */
+    private void makeQuietMove(Move move, byte pos[][], Color color ){
+        for (int i = 0; i < pos[color.code].length; i++) {
+            if (pos[color.code][i] == val(move.from)) {
+                pos[color.code][i] = val(move.to);
+                break;
+            }
+        }
+    }
+    /**
+     * @param move
+     * @param pos - массив
+     * @param color - цвет фигуры
+     * метод взятия фигурами
+     */
+    private void makeTakeMove(Move move, byte pos[][], Color color){
+        for (int i = 0; i < pos[color.code].length; i++) {
+            if (pos[color.code][i] == val(move.to)) {
+                // сдвигаем все остальные значения на единицу, заполняя выбывшую фигуру, пока не встретим 0
+                // таким образом массив будет всегда содержать нулевые значения в конце
+                for (int j = i + 1;pos[color.code][j] != 0 && j < pos[color.code].length; j++) {
+                    pos[color.code][j - 1] = pos[color.code][j];
+                }
+                break;
             }
         }
     }
@@ -288,18 +398,43 @@ public class Board {
 
             switch (move.capture.get()) {
                 case W_BISHOP:
-                    for (int i = 0; i < bishopPos[WHITE.code].length; i++) {
-                        if (bishopPos[WHITE.code][i] == 0) {
-                            // выставляем вернувшуюся фигуру в первое ненулевое окно
-                            bishopPos[WHITE.code][i] = val(move.to);
-                            break;
-                        }
-                    }
-                    // TODO - для остальных фигур сгенерировать возврат фигуры
+                    takeBackCapture(move, bishopPos,WHITE);
+                    break;
+                case B_BISHOP:
+                    takeBackCapture(move, bishopPos,BLACK);
+                    break;
+                case W_ROOK:
+                    takeBackCapture(move,rookPos,WHITE);
+                    break;
+                case B_ROOK:
+                    takeBackCapture(move,rookPos,BLACK);
+                    break;
+                case W_QUEEN:
+                    takeBackCapture(move,queenPos,WHITE);
+                    break;
+                case B_QUEEN:
+                    takeBackCapture(move,queenPos,BLACK);
+                    break;
+                case W_KNIGHT:
+                    takeBackCapture(move,knightPos,WHITE);
+                    break;
+                case B_KNIGHT:
+                    takeBackCapture(move,knightPos,BLACK);
+                    break;
             }
 
         } else {
             mailbox120[val(move.to)] = move.isCapture() ? move.capture.get() : EMP;
+        }
+    }
+
+    private void takeBackCapture(Move move, byte pos[][], Color color){
+        for (int i = 0; i < pos[color.code].length; i++) {
+            if (pos[color.code][i] == 0) {
+                // выставляем вернувшуюся фигуру в первое ненулевое окно
+                pos[color.code][i] = val(move.to);
+                break;
+            }
         }
     }
 
