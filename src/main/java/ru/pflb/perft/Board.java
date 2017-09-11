@@ -39,7 +39,7 @@ public class Board {
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
-    private final Color sideToMove;
+    private Color sideToMove;
 
     private Piece[] mailbox120 = {
             OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, OUT, // 0-9
@@ -278,15 +278,20 @@ public class Board {
         // TODO - реализовать курсанту
 
         byte pos = kingPos[kingColor.code];
-
+        // чтобы узнать есть ли взятие короля вторым ходым, то пропустим ход соперника
+        sideToMove = kingColor;
         List<Move>list = genAllMoves();
 
         for (Move move:list) {
-            if(move.to.getValue() == kingPos[kingColor.code] && move.piece.getColor()!=kingColor ){
+            if(move.to.getValue() == kingPos[kingColor.code]  ){
+                System.out.println(move.piece +" from "+move.from.getValue()+" to "+ move.to.getValue());
+                // вернем текущий ход спернику
+                sideToMove = getOpponentColor();
                 return true;
             }
         }
-
+        // вернем текущий ход спернику
+        sideToMove = getOpponentColor();
         return false;
     }
 
@@ -382,7 +387,7 @@ public class Board {
             if (pos[color.code][i] == val(move.to)) {
                 // сдвигаем все остальные значения на единицу, заполняя выбывшую фигуру, пока не встретим 0
                 // таким образом массив будет всегда содержать нулевые значения в конце
-                for (int j = i + 1;pos[color.code][j] != 0 && j < pos[color.code].length; j++) {
+                for (int j = i + 1;j < pos[color.code].length && pos[color.code][j] !=0; j++) {
                     pos[color.code][j - 1] = pos[color.code][j];
                 }
                 break;
