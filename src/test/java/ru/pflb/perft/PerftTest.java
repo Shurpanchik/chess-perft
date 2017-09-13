@@ -16,12 +16,48 @@ public class PerftTest {
         Board board = new Board("4kb2/8/8/8/8/8/8/4K2R w - -");
         int movesNb = Perft.calculate(board, 7);
         System.out.println(System.currentTimeMillis() - millis);
-
+        System.out.println(board);
         assertThat(movesNb).isEqualTo(104744354);
 
         // 15512
     }
 
+    @Test
+    // @Ignore
+    public void twokingsFarPerftTest() {
+        long millis = System.currentTimeMillis();
+        Board board = new Board("4k3/8/8/8/8/8/8/4K3 w - -");
+        int movesNb = Perft.calculate(board, 3);
+        System.out.println(System.currentTimeMillis() - millis);
+        System.out.println(board);
+        assertThat(movesNb).isEqualTo(104744354);
+
+        // 15512
+    }
+    @Test
+    // @Ignore
+    public void twokingsNearPerftTest() {
+        long millis = System.currentTimeMillis();
+        Board board = new Board("4k3/8/4K3/8/8/8/8/8 w - -");
+        int movesNb = Perft.calculate(board, 7);
+        System.out.println(System.currentTimeMillis() - millis);
+        System.out.println(board);
+        assertThat(movesNb).isEqualTo(104744354);
+
+        // 15512
+    }
+    @Test
+    // @Ignore
+    public void captureRookTest() {
+        long millis = System.currentTimeMillis();
+        Board board = new Board("4k3/8/8/8/8/8/5r2/4K3 w - -");
+        int movesNb = Perft.calculate(board, 3);
+        System.out.println(System.currentTimeMillis() - millis);
+        System.out.println(board);
+        assertThat(movesNb).isEqualTo(104744354);
+
+        // 15512
+    }
     @Test
     // @Ignore
     public void longPerftTest() {

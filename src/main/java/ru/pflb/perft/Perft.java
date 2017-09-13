@@ -13,18 +13,30 @@ public class Perft {
             return 1;
         }
 
-        int positions = 0;
         List<Move> moves = board.genAllMoves();
+        int positions = 0;
         for (Move move : moves) {
+            int start = board.getFiguresCount();
             board.makeMove(move);
-
+            int finish = board.getFiguresCount();
+            if (start < finish) {
+                System.out.println(board);
+                throw new RuntimeException("Kill yourself");
+            }
             if (board.isCheck(board.getOpponentColor())) {
+                board.takeBack(move);
                 continue;
             }
 
             positions += calculate(board, depth - 1);
 
             board.takeBack(move);
+
+            finish = board.getFiguresCount();
+            if (start != finish) {
+                System.out.println(board);
+                throw new RuntimeException("Kill yourself");
+            }
         }
 
         return positions;
