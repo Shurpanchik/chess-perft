@@ -323,22 +323,7 @@ public class Board {
             else {
                 // то проверяем явной генерацией ходов
                 // вычисляем offset для ладьи
-                byte offset ;
-                if(Math.abs(posKing-rookPos[sideToMove.code][i])<10) {
-                    if (posKing>rookPos[sideToMove.code][i]){
-                        offset = 1;
-                    }
-                    else {
-                        offset = -1;
-                    }
-                }else {
-                    if (posKing>rookPos[sideToMove.code][i]){
-                        offset = 10;
-                    }
-                    else {
-                        offset = -10;
-                    }
-                }
+               byte offset =findRookOffset(rookPos,i,posKing);
 
                 if(isCheckGeneration(rookPos,i,posKing,offset)){return true;}
             }
@@ -349,37 +334,33 @@ public class Board {
             if(((bishopPos[sideToMove.code][i]%10 - bishopPos[sideToMove.code][i]/10 ) == (posKing%10-posKing/10 ))||
                     ((bishopPos[sideToMove.code][i]%10 + bishopPos[sideToMove.code][i]/10 ) == (posKing%10+posKing/10 ))){
                 // то проверяем явной генерацией ходов
-                byte offset;
-                // король выше или ниже слона
-                // если король ниже по доске
-                if(posKing>bishopPos[sideToMove.code][i]) {
-                    // справа или слева
-                    if (posKing%10>bishopPos[sideToMove.code][i]%10){
-                        offset = 11;
-                    }
-                    else {
-                        offset = 9;
-                    }
-                }else {
-                    if (posKing%10>bishopPos[sideToMove.code][i]%10){
-                        offset = -9;
-                    }
-                    else {
-                        offset = -11;
-                    }
-                }
+                byte offset =findBishopOffset(bishopPos,i,posKing);
                 if( isCheckGeneration(bishopPos,i,posKing,offset)){return true;}
             }
             else {
-
                 continue;
             }
         }
-        List<Move>list = new LinkedList<>();
-        //  list.addAll(genRookMoves());
-        //   list.addAll(genBishopMoves());
-        list.addAll(genKnightMoves());
-        list.addAll(genQueenMoves());
+        // проверяем, что ферзь не бьет короля
+        for (int i = 0; i < queenPos[sideToMove.code].length && queenPos[sideToMove.code][i] != 0; i++) {
+            // если ферзь и король стоят  на одной диагонали или горизонтали, то проверяем явной генерацией ходов
+
+            // проверка диагоналей
+            if(((queenPos[sideToMove.code][i]%10 - queenPos[sideToMove.code][i]/10 ) == (posKing%10-posKing/10 ))||
+                    ((queenPos[sideToMove.code][i]%10 + queenPos[sideToMove.code][i]/10 ) == (posKing%10+posKing/10)
+                    )){
+                byte offset = findBishopOffset(queenPos,i,posKing);
+                if( isCheckGeneration(queenPos,i,posKing,offset)){return true;}
+            }
+            else if(queenPos[sideToMove.code][i]%10 != posKing%10 || queenPos[sideToMove.code][i]/10 != posKing/10){
+                byte offset = findRookOffset(queenPos,i,posKing);
+                if( isCheckGeneration(queenPos,i,posKing,offset)){return true;}
+            }
+            else {
+                continue;
+            }
+        }
+        List<Move>list = genKnightMoves();
 
 
         for (Move move:list) {
@@ -410,6 +391,47 @@ public class Board {
         return false;
     }
 
+    private byte findRookOffset(byte pos[][],int i, byte posKing){
+        byte offset ;
+        if(Math.abs(posKing-pos[sideToMove.code][i])<10) {
+            if (posKing>pos[sideToMove.code][i]){
+                offset = 1;
+            }
+            else {
+                offset = -1;
+            }
+        }else {
+            if (posKing>pos[sideToMove.code][i]){
+                offset = 10;
+            }
+            else {
+                offset = -10;
+            }
+        }
+        return offset;
+    }
+    private byte findBishopOffset(byte pos[][],int i, byte posKing){
+        byte offset ;
+        // король выше или ниже слона
+        // если король ниже по доске
+        if(posKing>pos[sideToMove.code][i]) {
+            // справа или слева
+            if (posKing%10>pos[sideToMove.code][i]%10){
+                offset = 11;
+            }
+            else {
+                offset = 9;
+            }
+        }else {
+            if (posKing%10>pos[sideToMove.code][i]%10){
+                offset = -9;
+            }
+            else {
+                offset = -11;
+            }
+        }
+        return offset;
+    }
     private void makeNonKingMove(Move move, byte[][] piecePos, Color color) {
         for (int i = 0; i < piecePos[color.code].length; i++) {
             if (piecePos[color.code][i] == val(move.from)) {
