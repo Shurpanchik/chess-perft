@@ -4,6 +4,7 @@ import ru.pflb.perft.exception.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static ru.pflb.perft.Piece.EMP;
@@ -307,8 +308,39 @@ public class Board {
         // TODO - реализовать курсанту
 
         byte posKing = kingPos[kingColor.code];
+        // Проверяем что короли не бьют друг друга
+        int deltaKing = kingPos[sideToMove.code]-kingPos[getOpponentColor().code];
+        if( deltaKing == 11 || deltaKing == -11 || deltaKing== 10 || deltaKing == -10 ||
+            deltaKing == 9||deltaKing == -9||deltaKing== 1 || deltaKing == -1)
+        {return true;}
 
-        List<Move>list = genAllMoves();
+        // Проверяем что ладья не может бить короля
+        for (int i = 0; i < rookPos[sideToMove.code].length && rookPos[sideToMove.code][i] != 0; i++) {
+            // не совпадают по вертикали и горизонтали (деление и остаток от деления, то точно не бьют)
+            if(rookPos[sideToMove.code][i]%10 != posKing%10 && rookPos[sideToMove.code][i]/10 != posKing/10 ){
+                continue;
+            }
+            else {
+                // то проверяем явной генерацией ходов
+               if(isCheckGeneration(rookPos,i,posKing,ROOK_OFFSETS)){return true;}
+            }
+        }
+        // Проверяем что слон не может бить короля
+        for (int i = 0; i < bishopPos[sideToMove.code].length && bishopPos[sideToMove.code][i] != 0; i++) {
+            // если слон и король стоят  на одной диагонали, то проверяем явной генерацией ходов
+            if(((bishopPos[sideToMove.code][i]%10 - bishopPos[sideToMove.code][i]/10 ) == (posKing%10-posKing/10 ))||
+                    ((bishopPos[sideToMove.code][i]%10 + bishopPos[sideToMove.code][i]/10 ) == (posKing%10+posKing/10 ))){
+                // то проверяем явной генерацией ходов
+                if( isCheckGeneration(bishopPos,i,posKing,BISHOP_OFFSETS)){return true;}
+            }
+            else {
+                continue;
+            }
+        }
+        List<Move>list = new LinkedList<>();
+        list.addAll(genKnightMoves());
+        list.addAll(genQueenMoves());
+
 
         for (Move move:list) {
             if(move.to.getValue() == posKing ){
@@ -318,6 +350,30 @@ public class Board {
         return false;
     }
 
+    private boolean isCheckGeneration(byte pos[][], int i, byte posKing,byte OFFSETS[] ){
+        // то проверяем явной генерацией ходов
+        byte from = pos[sideToMove.code][i];
+        // для каждой ладьи проходим по всем направлениям
+        for (byte offset : OFFSETS) {
+
+            byte to = (byte) (from + offset);
+
+                for (;to>0 && to<119 && mailbox120[to] == EMP; to += offset) {
+                    if (mailbox120[to] == OUT) {break;}
+                    // если встали на позицию короля
+                    if (to == posKing) {
+                        return true;
+                    }
+                }
+                if (to>0 && to<119 && mailbox120[to] == OUT) continue;
+                // если встали на позицию короля
+                if (to>0 && to<119 && to == posKing) {
+                    return true;
+                }
+
+        }
+        return false;
+    }
 
     private void makeNonKingMove(Move move, byte[][] piecePos, Color color) {
         for (int i = 0; i < piecePos[color.code].length; i++) {
@@ -502,6 +558,8 @@ public class Board {
                     takeBackCapture(move, knightPos, BLACK);
                     break;
                 default:
+                    System.out.println(kingPos[sideToMove.code]-kingPos[getOpponentColor().code]);
+                    System.out.println(move.capture);
                     throw new IllegalStateException("Неправильоне взятие");
             }
 

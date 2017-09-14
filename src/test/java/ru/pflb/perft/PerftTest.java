@@ -1,5 +1,6 @@
 package ru.pflb.perft;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +24,7 @@ public class PerftTest {
     }
 
     @Test
-    // @Ignore
+    @Ignore
     public void twokingsFarPerftTest() {
         long millis = System.currentTimeMillis();
         Board board = new Board("4k3/8/8/8/8/8/8/4K3 w - -");
@@ -35,7 +36,7 @@ public class PerftTest {
         // 15512
     }
     @Test
-    // @Ignore
+     @Ignore
     public void twokingsNearPerftTest() {
         long millis = System.currentTimeMillis();
         Board board = new Board("4k3/8/4K3/8/8/8/8/8 w - -");
@@ -47,7 +48,7 @@ public class PerftTest {
         // 15512
     }
     @Test
-    // @Ignore
+    @Ignore
     public void captureRookTest() {
         long millis = System.currentTimeMillis();
         Board board = new Board("4k3/8/8/8/8/8/5r2/4K3 w - -");
